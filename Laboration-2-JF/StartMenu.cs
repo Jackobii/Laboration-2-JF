@@ -17,15 +17,15 @@ namespace Laboration_2_JF
 
             if (userIndex == 0)
             {
-                LogIn();
+                LogInCustomer();
             }
             else if (userIndex == 1)
             {
-                RegisterNewUser();
+                RegisterNewCustomer();
             }
             else if (userIndex == 2)
             {
-                Environment.Exit(0);
+                Environment.Exit(0); // Avslutar applikationen
             }
             else
             {
