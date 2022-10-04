@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Laboration_2_JF
 {
-    public class MenuClass
+    public class BuildMenu
     {
         private string MenuTitle;
         private string[] MenuOptions;
         private int MenuIndex;
 
-        public MenuClass(string menuTitle, string[] menuOptions)
+        public BuildMenu(string menuTitle, string[] menuOptions)
         {
             MenuTitle = menuTitle;
             MenuOptions = menuOptions;
