@@ -1,4 +1,6 @@
-﻿namespace Laboration_2_JF
+﻿using System.Linq;
+
+namespace Laboration_2_JF
 {
     internal class Program
     {
