@@ -6,8 +6,8 @@ namespace Laboration_2_JF
     {
         static void Main(string[] args)
         {
-            StartMenu myMenu = new StartMenu();
-            myMenu.Start();
+            StartMenu startUpMenu = new StartMenu();
+            startUpMenu.Start();
         }
     }
 }

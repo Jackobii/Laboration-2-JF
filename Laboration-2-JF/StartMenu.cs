@@ -58,7 +58,9 @@ namespace Laboration_2_JF
                     {
                         Console.Clear();
                         Console.WriteLine($"Välkommen {username}!");
-                        //TODO Logga in personen
+                        Customer loggedInCustomer = new Customer(username, password);
+                        StoreMenu(loggedInCustomer);
+                        break;
                     }
                     else
                     {
@@ -77,12 +79,26 @@ namespace Laboration_2_JF
                     }
                 }
             }
+            else if (!_cdb.DoesCustomerExist(username))
+            {
+                string menuOutput = "Den användaren finns inte... \nVill du registrera en ny användare?";
+                string[] menuOptions = { "Ja", "Nej" };
+                var wrongPasswordMenu = new BuildMenu(menuOutput, menuOptions);
+                var menuIndex = wrongPasswordMenu.RunMenu();
+                switch (menuIndex)
+                {
+                    case 0:
+                        RegisterNewCustomer(username);
+                        break;
+                    case 1:
+                        break;
+                }
+
+            }
         }
         public void RegisterNewCustomer()
         {
             string newUsername;
-            string newPassword;
-            Customer newCustomer;
 
             while (true)
             {
@@ -103,55 +119,135 @@ namespace Laboration_2_JF
                 }
                 else
                 {
-                    Console.Write("Användarnamnet var tillgängligt! ");
-                    while (true)
-                    {
-                        Console.WriteLine("Var vänlig ange ditt önskade lösenord: ");
-                        newPassword = Console.ReadLine();
-                        if (newPassword.Equals(string.Empty))
-                        {
-                            Console.WriteLine("Du måste ha ett lösenord! Försök igen! \nKlicka på valfri knapp för att gå tillbaka...");
-                            Console.ReadKey();
-                            continue;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Ditt lösenord accepterades! Vilket sorts medlemskap vill du ha?");
-                            string menuOutput = "Våra olika medlemskapsnivåer: \n";
-                            string[] menuOptions = { "Basic Membership", "Bronze Membership", "Silver Membership", "Gold Membership" };
-                            var chooseMembershipMenu = new BuildMenu(menuOutput, menuOptions);
-                            var menuIndex = chooseMembershipMenu.RunMenu();
-                            switch (menuIndex)
-                            {
-                                case 0:
-                                    Console.Clear();
-                                    Console.WriteLine("Du har valt Basic Membership-nivån! Skapar konto...");
-                                    //newCustomer = Customer(newUsername, newPassword);
-                                    break;
-                                case 1:
-                                    Console.Clear();
-                                    Console.WriteLine("Du har valt Bronze Membership-nivån! Skapar konto...");
-                                    //newCustomer = BronzeCustomer(newUsername, newPassword);
-                                    break;
-                                case 2:
-                                    Console.Clear();
-                                    Console.WriteLine("Du har valt Silver Membership-nivån! Skapar konto...");
-                                    //newCustomer = SilverCustomer(newUsername, newPassword);
-                                    break;
-                                case 3:
-                                    Console.Clear();
-                                    Console.WriteLine("Du har valt Gold Membership-nivån! Skapar konto...");
-                                    //newCustomer = GoldCustomer(newUsername, newPassword);
-                                    break;
-                                default:
-                                    Console.Clear();
-                                    Console.WriteLine("Error! Försök igen...");
-                                    break;
-                            }
-                        }
-                    }
+                    RegisterNewCustomer(newUsername);
+                    break;
                 }
             }
+        }
+        public void RegisterNewCustomer(string newUsername)
+        {
+            while (true)
+            {
+                Console.WriteLine("Var vänlig ange ditt önskade lösenord: ");
+                string newPassword = Console.ReadLine();
+                if (newPassword.Equals(string.Empty))
+                {
+                    Console.WriteLine("Du måste ha ett lösenord! Försök igen! \nKlicka på valfri knapp för att gå tillbaka...");
+                    Console.ReadKey();
+                    continue;
+                }
+                else
+                {
+                    string menuOutput = "Ditt lösenord accepterades! Vilket sorts medlemskap vill du ha? \nVåra olika medlemskapsnivåer: \n";
+                    string[] menuOptions = { "Basic Membership", "Bronze Membership", "Silver Membership", "Gold Membership" };
+                    var chooseMembershipMenu = new BuildMenu(menuOutput, menuOptions);
+                    var menuIndex = chooseMembershipMenu.RunMenu();
+                    switch (menuIndex)
+                    {
+                        case 0:
+                            Console.Clear();
+                            Console.WriteLine("Du har valt Basic Membership-nivån! Skapar konto...");
+                            Customer newBasicCustomer = new Customer(newUsername, newPassword);
+                            _cdb.SaveCustomers(newBasicCustomer);
+                            StoreMenu(newBasicCustomer);
+                            break;
+                        case 1:
+                            Console.Clear();
+                            Console.WriteLine("Du har valt Bronze Membership-nivån! Skapar konto...");
+                            Customer newBronzeCustomer = new BronzeCustomer(newUsername, newPassword);
+                            _cdb.SaveCustomers(newBronzeCustomer);
+                            StoreMenu(newBronzeCustomer);
+                            break;
+                        case 2:
+                            Console.Clear();
+                            Console.WriteLine("Du har valt Silver Membership-nivån! Skapar konto...");
+                            Customer newSilverCustomer = new SilverCustomer(newUsername, newPassword);
+                            _cdb.SaveCustomers(newSilverCustomer);
+                            StoreMenu(newSilverCustomer);
+                            break;
+                        case 3:
+                            Console.Clear();
+                            Console.WriteLine("Du har valt Gold Membership-nivån! Skapar konto...");
+                            Customer newGoldCustomer = new GoldCustomer(newUsername, newPassword);
+                            _cdb.SaveCustomers(newGoldCustomer);
+                            StoreMenu(newGoldCustomer);
+                            break;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine("Error! Försök igen...");
+                            break;
+                    }
+                    break;
+                }
+            }
+        }
+        public void StoreMenu(Customer currentCustomer)
+        {
+            string menuOutput = $"Du har blivit inloggad! \nVälkommen in i affären {currentCustomer.Username}! Vad vill du göra?";
+            string[] menuOptions = { "Handla", "Min Kundvagn", "Mitt Konto", "Logga ut" };
+            BuildMenu shopMenu = new BuildMenu(menuOutput, menuOptions);
+            int menuIndex = shopMenu.RunMenu();
+
+            switch (menuIndex)
+            {
+                case 0:
+                    ShopMenu();
+                    break;
+                case 1:
+                    ShowCustomerCart(currentCustomer);
+                    break;
+                case 2:
+                    ShowCustomerAccount(currentCustomer);
+                    break;
+                default:
+                    //Spara användaren
+                    Start();
+                    break;
+            }
+        }
+        public void ShopMenu()
+        {
+
+        }
+        public void ShowCustomerCart(Customer currentCustomer)
+        {
+            string menuOutput = $"Det här är din kundvagn:";
+            //TODO visa vad du har i kundvagn
+
+            string[] menuOptions = { "Gå tillbaka", "Töm Kundvagn", "Bekräfta order" };
+            BuildMenu shopMenu = new BuildMenu(menuOutput, menuOptions);
+            int menuIndex = shopMenu.RunMenu();
+
+            switch (menuIndex)
+            {
+                case 0:
+                    StoreMenu(currentCustomer);
+                    break;
+                case 1:
+                    currentCustomer.Cart.Clear();
+                    break;
+                case 2:
+                    PlaceOrder(currentCustomer);
+                    break;
+                default:
+                    Console.WriteLine("Error! Nu har du gjort något knasigt! Försök igen!");
+                    break;
+            }
+        }
+        public void PlaceOrder(Customer currentCustomer)
+        {
+            Console.WriteLine("Tack för din beställning! Din order skickas inom kort. \n Din order:");
+            foreach (var product in currentCustomer.Cart)
+            {
+                //TODO visa antal och produkter!
+            }
+        }
+        public void ShowCustomerAccount(Customer currentCustomer) // Visa customer info genom min ToStrine() override som önskat
+        {
+            Console.WriteLine(currentCustomer.ToString());
+            Console.WriteLine("\nKlicka på valfri tangent för att gå tillbaka...");
+            Console.ReadKey();
+            StoreMenu(currentCustomer);
         }
     }
 }

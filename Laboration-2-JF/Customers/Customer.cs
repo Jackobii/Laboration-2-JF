@@ -19,9 +19,17 @@ public class Customer
     {
         return input;
     }
-    
-    public static void CreateNewCustomer(string username, string password, Customer customer)
+    public override string ToString()
     {
-
+        string output = string.Empty;
+        output += $"Name: {Username}\n";
+        output += $"Password: {Password}\n";
+        output += $"Membership: {this.GetType().Name} \n";
+        output += "Cart contains: \n-";
+        foreach (var product in Cart)
+        {
+            //TODO visa det som finns i carten
+        }
+        return output;
     }
 }
