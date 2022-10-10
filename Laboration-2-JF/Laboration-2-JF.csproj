@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Products\" />
+    <Folder Include="Currencies\" />
   </ItemGroup>
 
 </Project>

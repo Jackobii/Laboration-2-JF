@@ -18,14 +18,14 @@ public class CustomerDatabase
             });
             SaveCustomers();
         }
-        if (File.Exists(_docPath))
+        else if (File.Exists(_docPath))
         {
             ReadCustomers();
         }
     }
     public void SaveCustomers()
     {
-        using StreamWriter sw = new StreamWriter(_docPath);
+        using StreamWriter sw = new StreamWriter(_docPath, false);
         foreach (var customer in _existingCustomers)
         {
             sw.WriteLine(customer);
@@ -34,7 +34,7 @@ public class CustomerDatabase
     public void SaveCustomers(Customer newCustomer)
     {
         _existingCustomers.Add(newCustomer);
-        using StreamWriter sw = new StreamWriter(_docPath);
+        using StreamWriter sw = new StreamWriter(_docPath, false);
         foreach (var customer in _existingCustomers)
         {
             sw.WriteLine(customer);
@@ -47,7 +47,7 @@ public class CustomerDatabase
         string customerUsername = string.Empty;
         string customerPassword = string.Empty;
         string customerMembership = string.Empty;
-        List<Products.Products> customerProducts = new List<Products.Products>();
+        List<Products.Product> customerProducts = new List<Products.Product>();
         Console.WriteLine();
 
         while ((readLine = sr.ReadLine()) != null)
@@ -63,9 +63,7 @@ public class CustomerDatabase
             else if (readLine.StartsWith("Membership: "))
             {
                 customerMembership = readLine.Substring(12);
-            }
-            else
-            {
+
                 switch (customerMembership.Trim()) // Trim om det skulle hamnat några galna mellanslag i klassnamnet
                 {
                     case "Customer":

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Laboration_2_JF.Customers;
+using Laboration_2_JF.Products;
 
 namespace Laboration_2_JF
 {
     public class StartMenu
     {
         private CustomerDatabase _cdb = new CustomerDatabase();
+        private ProductDatabase _productDb = new ProductDatabase();
 
         public void Start()
         {
@@ -31,10 +34,10 @@ namespace Laboration_2_JF
                     break;
             }
         }
+        
         public void LogInCustomer()
         {
             Console.Clear();
-            Console.WriteLine($"");
             Console.WriteLine("Välkommen till min affär! Var vänlig skriv in ditt användarnamn: ");
             string username = Console.ReadLine();
 
@@ -96,6 +99,7 @@ namespace Laboration_2_JF
 
             }
         }
+        
         public void RegisterNewCustomer()
         {
             string newUsername;
@@ -124,6 +128,7 @@ namespace Laboration_2_JF
                 }
             }
         }
+        
         public void RegisterNewCustomer(string newUsername)
         {
             while (true)
@@ -181,17 +186,18 @@ namespace Laboration_2_JF
                 }
             }
         }
+        
         public void StoreMenu(Customer currentCustomer)
         {
-            string menuOutput = $"Du har blivit inloggad! \nVälkommen in i affären {currentCustomer.Username}! Vad vill du göra?";
-            string[] menuOptions = { "Handla", "Min Kundvagn", "Mitt Konto", "Logga ut" };
-            BuildMenu shopMenu = new BuildMenu(menuOutput, menuOptions);
-            int menuIndex = shopMenu.RunMenu();
+            string menuOutput = $"\nWelcome to the Store {currentCustomer.Username}! What do you want to do?";
+            string[] menuOptions = { "Browse Curiosities", "My Cart", "My Info", "Change Currency", "Leave the Store" };
+            BuildMenu storeMenu = new BuildMenu(menuOutput, menuOptions);
+            int menuIndex = storeMenu.RunMenu();
 
             switch (menuIndex)
             {
                 case 0:
-                    ShopMenu();
+                    ShopMenu(currentCustomer);
                     break;
                 case 1:
                     ShowCustomerCart(currentCustomer);
@@ -199,24 +205,76 @@ namespace Laboration_2_JF
                 case 2:
                     ShowCustomerAccount(currentCustomer);
                     break;
+                case 3:
+                    ChangeCurrency(currentCustomer);
                 default:
                     //Spara användaren
                     Start();
                     break;
             }
         }
-        public void ShopMenu()
+        
+        public void ShopMenu(Customer currentCustomer)
         {
+            string shopMenuTitle = $"Welcome to my corner of weapons. So many choices to be made...\n";
+            string[] createShopMenu = new string[_productDb._availableProducts.Count]; 
+            for (int i = 0; i < _productDb._availableProducts.Count; i++)
+            {
+                createShopMenu[i] = _productDb._availableProducts[i].ProductName.ToString();
+            }
+            BuildMenu shopMenu = new BuildMenu(shopMenuTitle, createShopMenu);
+            int menuIndex = shopMenu.RunMenu();
 
+            Console.WriteLine($"\nOh, interested in the {_productDb._availableProducts[menuIndex].ProductName} eh... \nThat will be {_productDb._availableProducts[menuIndex].ProductPrice} moneys!");
+            
+            Console.WriteLine("How many do you want?");
+
+            int productAmount;
+
+            while (true)
+            {
+                if (int.TryParse(Console.ReadLine(), out int userAmount) && userAmount >= 0)
+                {
+                    // Om användaren matar in ett tal:
+                    productAmount = userAmount;
+                    break;
+                }
+                else
+                {
+                    // Om användaren inte matar in något giltigt
+                    Console.WriteLine("I don't understand! You have to tell me how many you want!");
+                }
+            }
+
+            ProductsInCart newItem = new ProductsInCart();
+            newItem.ProductAmount = productAmount;
+            newItem.ProductInCart = _productDb._availableProducts[menuIndex];
+            currentCustomer.Cart.Add(newItem);
+            menuIndex = YesNoMenu();
+            switch (menuIndex)
+            {
+                case 0:
+                    ShopMenu(currentCustomer);
+                    break;
+                case 1:
+                    StoreMenu(currentCustomer);
+                    break;
+                default:
+                    Console.WriteLine("Error! Try again!");
+                    break;
+            }
         }
+        
         public void ShowCustomerCart(Customer currentCustomer)
         {
-            string menuOutput = $"Det här är din kundvagn:";
-            //TODO visa vad du har i kundvagn
-
-            string[] menuOptions = { "Gå tillbaka", "Töm Kundvagn", "Bekräfta order" };
-            BuildMenu shopMenu = new BuildMenu(menuOutput, menuOptions);
-            int menuIndex = shopMenu.RunMenu();
+            string printCart = $"Your cart contains: \n";
+            foreach (var product in currentCustomer.Cart)
+            {
+                printCart += $"{product.ProductAmount} x {product.ProductInCart.ProductName} \n";
+            }
+            string[] menuOptions = { "Go back", "Empty cart", "Place order" };
+            BuildMenu shopMenu = new BuildMenu("Welcome to your cart!", menuOptions);
+            int menuIndex = shopMenu.RunMenu(afterMenuMessage:printCart);
 
             switch (menuIndex)
             {
@@ -225,29 +283,52 @@ namespace Laboration_2_JF
                     break;
                 case 1:
                     currentCustomer.Cart.Clear();
+                    ShowCustomerCart(currentCustomer);
                     break;
                 case 2:
                     PlaceOrder(currentCustomer);
+                    ShowCustomerCart(currentCustomer);
                     break;
                 default:
                     Console.WriteLine("Error! Nu har du gjort något knasigt! Försök igen!");
                     break;
             }
         }
+        
         public void PlaceOrder(Customer currentCustomer)
         {
+            Console.Clear();
             Console.WriteLine("Tack för din beställning! Din order skickas inom kort. \n Din order:");
             foreach (var product in currentCustomer.Cart)
             {
-                //TODO visa antal och produkter!
+                Console.WriteLine($"{product.ProductAmount} x {product.ProductInCart.ProductName} for {(product.ProductInCart.ProductPrice)*(product.ProductAmount)}");
             }
+            currentCustomer.Cart.Clear();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
         }
-        public void ShowCustomerAccount(Customer currentCustomer) // Visa customer info genom min ToStrine() override som önskat
+        
+        public void ShowCustomerAccount(Customer currentCustomer) // Visa customer info genom min ToString() override som önskat
         {
+            Console.Clear();
             Console.WriteLine(currentCustomer.ToString());
             Console.WriteLine("\nKlicka på valfri tangent för att gå tillbaka...");
             Console.ReadKey();
             StoreMenu(currentCustomer);
+        }
+        
+        public void ChangeCurrency()
+        {
+
+        }
+        
+        public int YesNoMenu()
+        {
+            string menuOutput = "The item has been added to your cart! Anything else?";
+            string[] menuOptions = { "Yes", "No" };
+            BuildMenu yesNoMenu = new BuildMenu(menuOutput, menuOptions);
+            int menuIndex = yesNoMenu.RunMenu();
+            return menuIndex;
         }
     }
 }

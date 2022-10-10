@@ -47,13 +47,16 @@ namespace Laboration_2_JF
             }
         }
 
-        public int RunMenu()
+        public int RunMenu(string beforeMenuMessage = "", string afterMenuMessage = "")
         {
             ConsoleKey userInput;
             do
             {
                 Console.Clear();
+
+                Console.Write(beforeMenuMessage);
                 DisplayOptions();
+                Console.Write(afterMenuMessage);
 
                 userInput = Console.ReadKey().Key;
 

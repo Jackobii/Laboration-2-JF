@@ -4,12 +4,13 @@ public class Customer
 {
     public string Username { get; private set; }
     public string Password { get; set; }
-    public List<Products.Products> Cart { get; private set; } = new List<Products.Products>();
+    public List<Products.ProductsInCart> Cart { get; set; } = new List<Products.ProductsInCart>();
 
     public Customer(string name, string password)
     {
         Username = name;
         Password = password;
+        Cart = new();
     }
     public bool VerifyPassword(string password)
     {
@@ -24,7 +25,7 @@ public class Customer
         string output = string.Empty;
         output += $"Name: {Username}\n";
         output += $"Password: {Password}\n";
-        output += $"Membership: {this.GetType().Name} \n";
+        output += $"Membership: {this.GetType().Name}\n";
         output += "Cart contains: \n-";
         foreach (var product in Cart)
         {
