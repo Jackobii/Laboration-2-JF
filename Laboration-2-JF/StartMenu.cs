@@ -101,21 +101,21 @@ namespace Laboration_2_JF
                         RegisterNewCustomer(username);
                         break;
                     case 1:
+                        Start();
                         break;
                 }
 
             }
         }
         
-        public void RegisterNewCustomer()
+        public void RegisterNewCustomer() 
+            // Registrera ny kund
         {
-            string newUsername;
-
             while (true)
             {
                 Console.Clear();
                 Console.WriteLine("Ah, a new customer. Welcome! What is your name? ");
-                newUsername = Console.ReadLine();
+                string newUsername = Console.ReadLine();
                 if (newUsername.Equals(string.Empty))
                 {
                     Console.WriteLine("You have to give me a name! \nPress any button to go back...");
@@ -128,7 +128,8 @@ namespace Laboration_2_JF
                     Console.ReadKey();
                     continue;
                 }
-                else
+                else 
+                    // Om man fått ett giltligt användarnamn, hoppa över till nästa metod (För att inte upprepa mig själv)
                 {
                     RegisterNewCustomer(newUsername);
                     break;
@@ -137,6 +138,7 @@ namespace Laboration_2_JF
         }
         
         public void RegisterNewCustomer(string newUsername)
+            // Ange ett lösenord och registrera som ny kund med olika kundnivåer
         {
             while (true)
             {
@@ -154,7 +156,8 @@ namespace Laboration_2_JF
                     string[] menuOptions = { "Basic Membership", "Bronze Membership", "Silver Membership", "Gold Membership" };
                     var chooseMembershipMenu = new BuildMenu(menuOutput, menuOptions);
                     var menuIndex = chooseMembershipMenu.RunMenu();
-                    switch (menuIndex)
+                    switch (menuIndex) 
+                        // Väljer vilken kundnivå man vill ha
                     {
                         case 0:
                             Console.Clear();
@@ -216,24 +219,25 @@ namespace Laboration_2_JF
                     ChangeCurrency(currentCustomer);
                     break;
                 default:
-                    //Spara användaren
                     Start();
                     break;
             }
         }
         
-        public void ShopMenu(Customer currentCustomer)
+        public void ShopMenu(Customer currentCustomer) // Visar alla varor man kan köpa + description och pris i de olika valutorna.
         {
             string shopMenuTitle = $"Welcome to my little corner store of curiosities. So many choices to be made...\n";
             string[] createShopMenu = new string[_productDb._availableProducts.Count];
+            double[] productPrice = new double[_productDb._availableProducts.Count];
             string[] productDescription = new string[_productDb._availableProducts.Count];
             for (int i = 0; i < _productDb._availableProducts.Count; i++)
             {
                 createShopMenu[i] = _productDb._availableProducts[i].ProductName.ToString();
+                productPrice[i] = _productDb._availableProducts[i].ProductPrice;
                 productDescription[i] = _productDb._availableProducts[i].ProductDescription;
             }
             BuildMenu shopMenu = new BuildMenu(shopMenuTitle, createShopMenu);
-            int menuIndex = shopMenu.RunShopMenu(productDescription);
+            int menuIndex = shopMenu.RunShopMenu((Currency)_currentCurrency, _currentCurrency, productPrice, productDescription);
 
             Console.WriteLine($"\nOh, interested in the {_productDb._availableProducts[menuIndex].ProductName} eh... \n\nThat will be {_productDb._availableProducts[menuIndex].ProductPrice*_currentCurrency} {(Currency)_currentCurrency}!");
             
@@ -261,6 +265,7 @@ namespace Laboration_2_JF
                 //Lägg inte till en vara
             }
             else
+                // Lägg till vara
             {
                 ProductsInCart newItem = new ProductsInCart();
                 newItem.ProductAmount = productAmount;
@@ -325,7 +330,8 @@ namespace Laboration_2_JF
             }
         }
         
-        public void PlaceOrder(Customer currentCustomer)
+        public void PlaceOrder(Customer currentCustomer) 
+            // Metod för att lägga en order. Visar även hur mycket du ska betala efter rabatt beroende på kundnivå
         {
             Console.Clear();
             Console.WriteLine("Ah, we have come to an agreement! Thank you for your patronage! \nYou recieved:");
@@ -360,6 +366,7 @@ namespace Laboration_2_JF
         }
         
         public void ChangeCurrency(Customer currentCustomer)
+            // Menu som bestämmer vilken valuta som ska visas i affären, genom användning av Enum
         {
             string menuOutput = $"What currency do you wish to pay in?";
             string[] menuOptions = { "USD", "Wow Gold", "Simoleans", "Rupees" };
@@ -390,7 +397,8 @@ namespace Laboration_2_JF
             }
         }
 
-        public int YesNoMenu()
+        public int YesNoMenu() 
+            // En enkel metod för att skapa en Yes/No meny. Användes mindre än jag trodde den skulle...
         {
             string menuOutput = "The item has been added to your cart! Anything else?";
             string[] menuOptions = { "Yes", "No" };

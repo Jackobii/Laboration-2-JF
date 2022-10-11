@@ -76,7 +76,7 @@ namespace Laboration_2_JF
             return MenuIndex;
         }
 
-        public int RunShopMenu(string[] afterMenuMessage) 
+        public int RunShopMenu(Currency currentCurrency,double currentCurrencyConversion,double[] productPrice,string[] afterMenuMessage) 
             // override för att kunna visa product descriptions! Tar in en array med alla descriptions så att dom kan visas.
         {
             ConsoleKey userInput;
@@ -84,7 +84,7 @@ namespace Laboration_2_JF
             {
                 Console.Clear();
                 DisplayOptions();
-                Console.Write("\n\n" + afterMenuMessage[MenuIndex]);
+                Console.Write("\n\n" + afterMenuMessage[MenuIndex] + $"\n\nThat one will cost you {productPrice[MenuIndex]*currentCurrencyConversion} {(Currency)currentCurrency}");
 
                 userInput = Console.ReadKey().Key;
 
