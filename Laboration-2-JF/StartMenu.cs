@@ -13,8 +13,7 @@ namespace Laboration_2_JF
     {
         private CustomerDatabase _cdb = new CustomerDatabase();
         private ProductDatabase _productDb = new ProductDatabase();
-        private double _currentCurrency = (double)Currencies.Currency.Usd;
-        private double _totalPrice;
+        private double _currentCurrency = (double)Currency.Usd;
 
         public void Start()
         {
@@ -22,8 +21,9 @@ namespace Laboration_2_JF
             string[] menuOptions = { "Log in", "Register New Customer", "Leave the Store" };
             BuildMenu mainMenu = new BuildMenu(menuOutput, menuOptions);
             int menuIndex = mainMenu.RunMenu();
-
+            // Bygger en meny genom att anropa metoderna i min BuildMenu klass. Får ut menuIndex som en int.
             switch (menuIndex)
+                // Switchar menuIndex för att bestämma vad användaren vill göra.
             {
                 case 0:
                     LogInCustomer();
@@ -32,18 +32,21 @@ namespace Laboration_2_JF
                     RegisterNewCustomer();
                     break;
                 default:
-                    Environment.Exit(0); // Avslutar applikationen
+                    Environment.Exit(0); 
+                    // Avslutar applikationen
                     break;
             }
         }
         
-        public void LogInCustomer()
+        public void LogInCustomer() 
+            // Metod för att logga in
         {
             Console.Clear();
             Console.WriteLine("Welcome! What is your name: ");
             string username = Console.ReadLine();
 
             while (username.Equals(string.Empty))
+                // Om användarnamn är tomt, acceptera ej!
             {
                 Console.WriteLine("You have to give me a name! Try again!");
                 username = Console.ReadLine();
@@ -53,6 +56,7 @@ namespace Laboration_2_JF
                 }
             }
             if (_cdb.DoesCustomerExist(username))
+                // Finns användaren i databasen?
             { 
                 while (true)
                 { 
@@ -221,15 +225,17 @@ namespace Laboration_2_JF
         public void ShopMenu(Customer currentCustomer)
         {
             string shopMenuTitle = $"Welcome to my little corner store of curiosities. So many choices to be made...\n";
-            string[] createShopMenu = new string[_productDb._availableProducts.Count]; 
+            string[] createShopMenu = new string[_productDb._availableProducts.Count];
+            string[] productDescription = new string[_productDb._availableProducts.Count];
             for (int i = 0; i < _productDb._availableProducts.Count; i++)
             {
                 createShopMenu[i] = _productDb._availableProducts[i].ProductName.ToString();
+                productDescription[i] = _productDb._availableProducts[i].ProductDescription;
             }
             BuildMenu shopMenu = new BuildMenu(shopMenuTitle, createShopMenu);
-            int menuIndex = shopMenu.RunMenu();
+            int menuIndex = shopMenu.RunShopMenu(productDescription);
 
-            Console.WriteLine($"\nOh, interested in the {_productDb._availableProducts[menuIndex].ProductName} eh... \nThat will be {_productDb._availableProducts[menuIndex].ProductPrice} {(Currencies.Currency)_currentCurrency}!");
+            Console.WriteLine($"\nOh, interested in the {_productDb._availableProducts[menuIndex].ProductName} eh... \n\nThat will be {_productDb._availableProducts[menuIndex].ProductPrice*_currentCurrency} {(Currency)_currentCurrency}!");
             
             Console.WriteLine("How many do you want?");
 
@@ -278,16 +284,20 @@ namespace Laboration_2_JF
         
         public void ShowCustomerCart(Customer currentCustomer)
         {
-            _totalPrice = 0;
             string printCart = $"Your cart contains: \n";
-            foreach (var product in currentCustomer.Cart)
+            foreach (var product in currentCustomer.Cart) // Visar carten och hur mycket grejerna kostar + en total
             {
-                printCart += $"{product.ProductAmount} x {product.ProductInCart.ProductName} for a price of {product.ProductAmount*product.ProductInCart.ProductPrice*_currentCurrency} {(Currencies.Currency)_currentCurrency}    ({product.ProductInCart.ProductPrice*_currentCurrency}/each)\n";
-                _totalPrice += (double)product.ProductInCart.ProductPrice;
+                printCart += $"{product.ProductAmount} x {product.ProductInCart.ProductName} for a price of {product.ProductAmount*product.ProductInCart.ProductPrice*_currentCurrency} {(Currency)_currentCurrency}    ({product.ProductInCart.ProductPrice*_currentCurrency}/each)\n";
             }
 
-            printCart += $"The total of all these splendid items will amount to... {Math.Round(_totalPrice * _currentCurrency, 2)} {(Currencies.Currency)_currentCurrency}";
-            if (!currentCustomer.GetType().Name.Equals("Customer"))
+            double total =
+                (Products.Product.CalculateTotalPrice(currentCustomer, currentCustomer.Cart) * _currentCurrency); 
+            // Anropar metoden som räknar ut totalen av allt i kundvagnen.
+
+            printCart += $"The total of all these splendid items will amount to... {Math.Round(total, 2)} {(Currency)_currentCurrency}";
+
+            if (!currentCustomer.GetType().Name.Equals("Customer")) 
+                // Om du är pluskund av något slag
             {
                 printCart += $"\nSeeing that you are a {currentCustomer.GetType().Name}, I will give you a discount at checkout...";
             }
@@ -317,19 +327,23 @@ namespace Laboration_2_JF
         
         public void PlaceOrder(Customer currentCustomer)
         {
-            double checkOutPrice;
             Console.Clear();
             Console.WriteLine("Ah, we have come to an agreement! Thank you for your patronage! \nYou recieved:");
+
             foreach (var product in currentCustomer.Cart)
             {
                 Console.WriteLine($"{product.ProductAmount} x {product.ProductInCart.ProductName} for {(_currentCurrency)*(product.ProductInCart.ProductPrice)*(product.ProductAmount)}");
             }
-            Console.WriteLine($"The total price of these items were {_totalPrice*_currentCurrency}{(Currencies.Currency)_currentCurrency} \n");
+
+            double total =
+                (Products.Product.CalculateTotalPrice(currentCustomer, currentCustomer.Cart) * _currentCurrency);
+
+            Console.WriteLine($"The total price of these items were {Math.Round(total), 2} {(Currency)_currentCurrency} \n");
             if (!currentCustomer.GetType().Name.Equals("Customer")) 
-                // Om man är någon sorts pluskund
+                // Om man är någon sorts pluskund, apply discount!
             {
                 Console.WriteLine($"However, since you are a {currentCustomer.GetType().Name}, we can afford to give you a discount... \n" +
-                                  $"How about you just pay {Math.Round(currentCustomer.ApplyCustomerDiscount(_totalPrice), 2)} {(Currencies.Currency)_currentCurrency} instead?");;
+                                  $"How about you just pay {Math.Round(currentCustomer.ApplyCustomerDiscount(total), 2)} {(Currency)_currentCurrency} instead?");
             }
             currentCustomer.Cart.Clear();
             Console.WriteLine("Press any key to continue...");
@@ -355,19 +369,19 @@ namespace Laboration_2_JF
             switch (menuIndex)
             {
                 case 0:
-                    _currentCurrency = (double)Currencies.Currency.Usd;
+                    _currentCurrency = (double)Currency.Usd;
                     StoreMenu(currentCustomer);
                     break;
                 case 1:
-                    _currentCurrency = (double)Currencies.Currency.WoWGold;
+                    _currentCurrency = (double)Currency.WoWGold;
                     StoreMenu(currentCustomer);
                     break;
                 case 2:
-                    _currentCurrency = (double)Currencies.Currency.Simoleans;
+                    _currentCurrency = (double)Currency.Simoleans;
                     StoreMenu(currentCustomer);
                     break;
                 case 3:
-                    _currentCurrency = (double)Currencies.Currency.Rupees;
+                    _currentCurrency = (double)Currency.Rupees;
                     StoreMenu(currentCustomer);
                     break;
                 default:

@@ -6,7 +6,7 @@ public class GoldCustomer : Customer
     {
 
     }
-    public override double ApplyCustomerDiscount(double input)
+    public override double ApplyCustomerDiscount(double input) // Override för att ge rätt rabatt i kassan
     {
         return (input * 0.85d);
     }

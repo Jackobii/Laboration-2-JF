@@ -4,7 +4,8 @@ public class ProductDatabase
 {
     public List<Product> _availableProducts = new ();
 
-    public ProductDatabase()
+    public ProductDatabase() 
+        // Databas över produkter som finns i affären. Även en mall för att enkelt kunna lägga till nya produkter ;)
     {
         _availableProducts.AddRange(new []
         {

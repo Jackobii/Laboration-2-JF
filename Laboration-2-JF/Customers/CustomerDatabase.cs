@@ -2,12 +2,13 @@
 
 public class CustomerDatabase
 {
-    private List<Customers.Customer> _existingCustomers = new ();
+    private List<Customers.Customer> _existingCustomers = new (); // lista över existerande kunder
     private readonly string _docPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MyCustomersJF.txt");
-
+    // Lägger MyCustomersJF.txt i Mina Dokument på användarens dator
     public CustomerDatabase()
     {
-        if (!File.Exists(_docPath))
+        if (!File.Exists(_docPath)) 
+            // Om filen icke existerar, lägg in fördefinierade kunder enligt nedan
         {
             _existingCustomers.AddRange(new[] {
                 new Customer("Kalle", "313"),
@@ -16,14 +17,18 @@ public class CustomerDatabase
                 new GoldCustomer("Tjatte", "213")
 
             });
-            SaveCustomers();
+            SaveCustomers(); 
+            // Metod för att spara kunderna i listan _existingCustomers till ett .txt document
         }
         else if (File.Exists(_docPath))
         {
-            ReadCustomers();
+            ReadCustomers(); 
+            // Metod för att läsa in kunderna från en .txt fil och sedan lägga in i listan _existingCustomers
         }
     }
-    public void SaveCustomers()
+    
+    public void SaveCustomers() 
+        // Sparar kunderna i _existingCustomers till ett nytt .txt dokument
     {
         using StreamWriter sw = new StreamWriter(_docPath, false);
         foreach (var customer in _existingCustomers)
@@ -31,7 +36,10 @@ public class CustomerDatabase
             sw.WriteLine(customer);
         }
     }
-    public void SaveCustomers(Customer newCustomer)
+    
+    public void SaveCustomers(Customer newCustomer) 
+        // En override på SaveCustomers() metoden som lägger in en nyskapad kund i listan över befintliga kunder
+        // och sparar till .txt dokument
     {
         _existingCustomers.Add(newCustomer);
         using StreamWriter sw = new StreamWriter(_docPath, false);
@@ -40,7 +48,9 @@ public class CustomerDatabase
             sw.WriteLine(customer);
         }
     }
-    public void ReadCustomers()
+    
+    public void ReadCustomers() 
+        // Metod som läser in all kunder i en .txt fil enligt formatet som jag förbestämt i ToString() overriden i Customer
     {
         using StreamReader sr = new StreamReader(_docPath);
         string readLine = string.Empty;
@@ -62,7 +72,8 @@ public class CustomerDatabase
             else if (readLine.StartsWith("Membership: "))
             {
                 customerMembership = readLine.Substring(12);
-
+                // När namn, lösenord och vilken sorts kund man är har lästs in så skapas en ny kund
+                // efter dessa specifikationer och läggs in i listan över kunder
                 switch (customerMembership) 
                 {
                     case "Customer":
@@ -88,18 +99,23 @@ public class CustomerDatabase
             }
         }
     }
-    public bool DoesCustomerExist(string username)
+    
+    public bool DoesCustomerExist(string username) 
+        // Om användaren finns i databasen, returna True. Annars false.
     {
         return _existingCustomers
             .Any(a => a.Username.Equals(username));
     }
-    public bool VerifyCustomerPassword(string username, string password)
+    
+    public bool VerifyCustomerPassword(string username, string password) 
+        // Om användarnamnet matchar med lösenordet, returna true och låter användaren logga in
     {
         return _existingCustomers
             .Any(a => a.Username.Equals(username) && a.VerifyPassword(password));
     }
 
-    public Customer FetchCustomer(string username, string password)
+    public Customer? FetchCustomer(string username, string password)
+        // Hämta uppgifter om kunden som man loggar in på
     {
         return _existingCustomers
             .FirstOrDefault(a => a.Username.Equals(username) && a.VerifyPassword(password));
