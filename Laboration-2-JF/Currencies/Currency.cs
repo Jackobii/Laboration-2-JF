@@ -2,8 +2,8 @@
 
 public enum Currency
 {
-    USD,
-    WoWGold,
-    Simoleans,
-    Rupees
+    Usd = 1,
+    WoWGold = 1000,
+    Simoleans = 20,
+    Rupees = 5
 }
