@@ -1,4 +1,6 @@
-﻿namespace Laboration_2_JF.Customers;
+﻿using Laboration_2_JF.Currencies;
+
+namespace Laboration_2_JF.Customers;
 
 public class Customer
 {
@@ -26,11 +28,6 @@ public class Customer
         output += $"Name: {Username}\n";
         output += $"Password: {Password}\n";
         output += $"Membership: {this.GetType().Name}\n";
-        output += "Cart contains: \n-";
-        foreach (var product in Cart)
-        {
-            //TODO visa det som finns i carten
-        }
         return output;
     }
 }

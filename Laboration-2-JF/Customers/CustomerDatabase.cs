@@ -48,7 +48,6 @@ public class CustomerDatabase
         string customerPassword = string.Empty;
         string customerMembership = string.Empty;
         List<Products.Product> customerProducts = new List<Products.Product>();
-        Console.WriteLine();
 
         while ((readLine = sr.ReadLine()) != null)
         {
@@ -64,22 +63,22 @@ public class CustomerDatabase
             {
                 customerMembership = readLine.Substring(12);
 
-                switch (customerMembership.Trim()) // Trim om det skulle hamnat några galna mellanslag i klassnamnet
+                switch (customerMembership) 
                 {
                     case "Customer":
                         Customer existingCustomer = new Customer(customerUsername, customerPassword);
                         _existingCustomers.Add(existingCustomer);
                         break;
                     case "BronzeCustomer":
-                        Customer existingBronzeCustomer = new BronzeCustomer(customerUsername, customerPassword);
+                        BronzeCustomer existingBronzeCustomer = new BronzeCustomer(customerUsername, customerPassword);
                         _existingCustomers.Add(existingBronzeCustomer);
                         break;
                     case "SilverCustomer":
-                        Customer existingSilverCustomer = new SilverCustomer(customerUsername, customerPassword);
-                        _existingCustomers.Add(existingSilverCustomer);
+                        SilverCustomer existingSilverCustomer = new SilverCustomer(customerUsername, customerPassword);
+                        _existingCustomers.Add(new SilverCustomer(customerUsername, customerPassword));
                         break;
                     case "GoldCustomer":
-                        Customer existingGoldCustomer = new GoldCustomer(customerUsername, customerPassword);
+                        GoldCustomer existingGoldCustomer = new GoldCustomer(customerUsername, customerPassword);
                         _existingCustomers.Add(existingGoldCustomer);
                         break;
                     default:
@@ -98,5 +97,11 @@ public class CustomerDatabase
     {
         return _existingCustomers
             .Any(a => a.Username.Equals(username) && a.VerifyPassword(password));
+    }
+
+    public Customer FetchCustomer(string username, string password)
+    {
+        return _existingCustomers
+            .FirstOrDefault(a => a.Username.Equals(username) && a.VerifyPassword(password));
     }
 }
